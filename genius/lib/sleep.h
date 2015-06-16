@@ -5,8 +5,8 @@
  * Created on April 19, 2015, 8:03 PM
  */
 
-#ifndef CLS_H
-#define	CLS_H
+#ifndef SLEEP_H
+#define	SLEEP_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -14,19 +14,19 @@ extern "C" {
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
-/**
- * Limpa a tela, fazendo chamadas de sistema win ou linux
- */
-void clear_screen() {
+//sleep
+void wait(int seconds) {
 	#ifdef WINDOWS
+		int win_seconds = seconds * 100;
 	    system("cls");
+	    Sleep(win_seconds);
 	#else
-	    // Assume POSIX
-	    system ("clear");
+	    sleep(seconds);
 	#endif
 }
-
 
 #ifdef	__cplusplus
 }

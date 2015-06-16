@@ -19,7 +19,10 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+
+//Libs adicionais criadas
 #include "lib/cls.h"
+#include "lib/sleep.h"
 
 /***********************************************/
 /* Definicao dos Registros                     */
@@ -52,10 +55,13 @@ typedef struct jogada {
 /***********************************************/
 /* Definicao das Funcoes                       */
 /***********************************************/
+int sortear_cor();
+
 void jogar(JOGADORES** j);   // inicializa novo jogo com NULL
 void placar(JOGADORES *l);   // informa recordes do jogo
 void info_jogo();   // tutorial do jogo
 void inicia_jogadas(JOGADAS ** pc);
+void imprime_jogadas(JOGADAS* lista_jogadas, int segundos);
 
 void cor(char * cor) {
 	system(cor);
@@ -114,16 +120,32 @@ int main(void) {
 
 } // fim do programa principal
 
-void imprime_lista(JOGADAS* aux) {
-	if (aux == NULL)
-		printf("\n Lista vazia!");
+/**
+ * Imprime as cores das jogadas
+ */
+void imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
+	if (lista_jogadas == NULL) // caso a lista esteja vazia
+		printf("\n sem jogadas!");
 	else {
-		printf("\n\n ---- Relatorio Geral ---- ");
-		while (aux != NULL) {    // ponteiro auxiliar para a lista
-			printf("\n COR: %d", aux->cor);
-			aux = aux->prox;  // aponta para o proximo registro da lista
+		clear_screen();
+		while (lista_jogadas != NULL) {    // ponteiro auxiliar para a lista
+			printf("[ %d ]", lista_jogadas->cor);
+			lista_jogadas = lista_jogadas->prox;  // aponta para o proximo registro da lista
+			wait(1);
+			clear_screen();
+			fflush(stdout);
 		} // fim while( aux != NULL )
 	} // fim if( aux == NULL )
+
+	clear_screen();
+}
+
+int sortear_cor() {
+	int cor_sorteada = 0; // armazena o codigo da cor randomica
+	srand(time(NULL)); // inicia o random e nao faz sempre buscar a mesma sequencia
+	cor_sorteada = rand() % MAXNUMCORES + 1; // sorteia uma cor, evita o 0
+
+	return cor_sorteada;
 }
 
 /************************************************
@@ -135,40 +157,36 @@ void imprime_lista(JOGADAS* aux) {
 void jogar(JOGADORES** j) {
 	int t = 0;
 
-	//*pc = NULL;
 	JOGADAS* lista_jogadas = NULL;
 	JOGADAS* p = NULL;
 
-	while (t < 4) {
+	while (1) {
 		JOGADAS* rodada = (JOGADAS *) malloc(sizeof(JOGADAS)); // aloca novo espaco em memoria para rodadas
 
-		int ultimaCor = 0; // armazena o codigo da cor randomica
-		srand(time(NULL)); // inicia o random e nao faz sempre buscar a mesma sequencia
-		ultimaCor = rand() % MAXNUMCORES + 1; // sorteia uma cor, evita o 0
-
-		printf("\ncor %d", ultimaCor);
-
 		if (rodada != NULL) {
-			rodada->cor = ultimaCor;
+			rodada->cor = sortear_cor();
 			rodada->prox = NULL;
 
 			if (lista_jogadas == NULL) {
 				lista_jogadas = rodada;
+			} else {
+				p = lista_jogadas;
+				while (p->prox != NULL) {
+					p = p->prox;
+				}
+				p->prox = rodada; // ultimo aponta para o novo registro
 			}
 		}
 
-		sleep(1);
-		t++;
-		//free(rodada);
-	}
-	imprime_lista(lista_jogadas);
+		imprime_jogadas(lista_jogadas, 1);
+		printf("\n aguardando...");
+		getchar();
 
-	printf("\n\n Legenda de cores: ");
-	printf("\n\n [1] Amarelo ");
-	printf("\n\n [2] Azul ");
-	printf("\n\n [3] Verde ");
-	printf("\n\n [4] Vermelho ");
-	fflush( stdin); // limpa buffer do teclado, funciona junto com entrada de dados
+		t++;
+		if (t >= 5) {
+			break;
+		}
+	}
 
 	getchar();
 
