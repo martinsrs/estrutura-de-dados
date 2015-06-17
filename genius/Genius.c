@@ -61,7 +61,7 @@ void jogar(JOGADORES** j);   // inicializa novo jogo com NULL
 void placar(JOGADORES *l);   // informa recordes do jogo
 void info_jogo();   // tutorial do jogo
 void inicia_jogadas(JOGADAS ** pc);
-int imprime_jogadas(JOGADAS* lista_jogadas, int segundos);
+void imprime_jogadas(JOGADAS* lista_jogadas, int segundos);
 
 void cor(char * cor) {
 	system(cor);
@@ -123,9 +123,7 @@ int main(void) {
 /**
  * Imprime as cores das jogadas
  */
-int imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
-
-	int total = 0;
+void imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
 
 	if (lista_jogadas == NULL) // caso a lista esteja vazia
 		printf("\n sem jogadas!");
@@ -139,13 +137,10 @@ int imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
 			wait(1);
 			clear_screen();
 			fflush(stdout);
-			total++;
 		} // fim while( aux != NULL )
 	} // fim if( aux == NULL )
 
 	clear_screen();
-
-	return total;
 }
 
 int sortear_cor() {
@@ -191,13 +186,11 @@ void jogar(JOGADORES** j) {
 	int errou = 0;
 	while (!errou) {
 		inclui_jogada(&lista_computador, sortear_cor());
-		int num_jogadas = imprime_jogadas(lista_computador, 1);
+		imprime_jogadas(lista_computador, 1);
 
 		p = lista_computador;
 		int c = 1;
 		int cor_jogador;
-
-
 
 		while (p != NULL) {
 
@@ -207,6 +200,7 @@ void jogar(JOGADORES** j) {
 			int tempoFim = time(NULL);
 			int seg = tempoFim - tempoIni;
 
+			// verifica se estourou o tempo
 			if (seg >= LIMITE_TEMPO) {
 				printf("TIME IS UP!!! %d ", seg);
 				getchar();
@@ -214,7 +208,7 @@ void jogar(JOGADORES** j) {
 				errou = 1;
 				break;
 			} else {
-
+				// se nao estourar o tempo verifica a cor.
 				if (cor_jogador == p->cor) {
 					pontos = pontos + ACERTO;
 					p = p->prox;
