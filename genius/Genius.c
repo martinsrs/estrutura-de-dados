@@ -35,15 +35,15 @@
 #define VERMELHO "color 0C"
 #define BRANCO "color 0F"
 #define ACERTO 10
+#define LIMITE_TEMPO 9
 
 typedef struct {          // criando tipo de estrutura
 	int pontos;  // total de pontos
 	char nome[30];
-	int cor; // ultima cor jogada
 } JOGADOR;
 
 typedef struct list {
-	JOGADOR play;   // dados do jogador
+	JOGADOR jogador;   // dados do jogador
 	struct list* prox; // ponteiro para o proximo registro
 } JOGADORES;
 
@@ -61,7 +61,7 @@ void jogar(JOGADORES** j);   // inicializa novo jogo com NULL
 void placar(JOGADORES *l);   // informa recordes do jogo
 void info_jogo();   // tutorial do jogo
 void inicia_jogadas(JOGADAS ** pc);
-void imprime_jogadas(JOGADAS* lista_jogadas, int segundos);
+int imprime_jogadas(JOGADAS* lista_jogadas, int segundos);
 
 void cor(char * cor) {
 	system(cor);
@@ -123,21 +123,29 @@ int main(void) {
 /**
  * Imprime as cores das jogadas
  */
-void imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
+int imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
+
+	int total = 0;
+
 	if (lista_jogadas == NULL) // caso a lista esteja vazia
 		printf("\n sem jogadas!");
 	else {
 		clear_screen();
+		int cont = 1;
 		while (lista_jogadas != NULL) {    // ponteiro auxiliar para a lista
-			printf("[ %d ]", lista_jogadas->cor);
+			printf("%d - [ %d ]", cont++, lista_jogadas->cor);
 			lista_jogadas = lista_jogadas->prox;  // aponta para o proximo registro da lista
+			fflush(stdout);
 			wait(1);
 			clear_screen();
 			fflush(stdout);
+			total++;
 		} // fim while( aux != NULL )
 	} // fim if( aux == NULL )
 
 	clear_screen();
+
+	return total;
 }
 
 int sortear_cor() {
@@ -148,6 +156,26 @@ int sortear_cor() {
 	return cor_sorteada;
 }
 
+void inclui_jogada(JOGADAS ** jogadas, int cor) {
+	JOGADAS* p = NULL;
+	JOGADAS* rodada = (JOGADAS *) malloc(sizeof(JOGADAS)); // aloca novo espaco em memoria para rodadas
+
+	if (rodada != NULL) {
+		rodada->cor = cor;
+		rodada->prox = NULL;
+
+		if (*jogadas == NULL) {
+			*jogadas = rodada;
+		} else {
+			p = *jogadas;
+			while (p->prox != NULL) {
+				p = p->prox;
+			}
+			p->prox = rodada; // ultimo aponta para o novo registro
+		}
+	}
+}
+
 /************************************************
  * jogar                                        *
  * objetivo: rotina para inicializar o jogo     *
@@ -155,44 +183,61 @@ int sortear_cor() {
  * saida   : NULL (inicializa JOGADORES)        *
  ************************************************/
 void jogar(JOGADORES** j) {
-	int t = 0;
 
-	JOGADAS* lista_jogadas = NULL;
+	JOGADAS* lista_computador = NULL;
 	JOGADAS* p = NULL;
 
-	while (1) {
-		JOGADAS* rodada = (JOGADAS *) malloc(sizeof(JOGADAS)); // aloca novo espaco em memoria para rodadas
+	int pontos = 0;
+	int errou = 0;
+	while (!errou) {
+		inclui_jogada(&lista_computador, sortear_cor());
+		int num_jogadas = imprime_jogadas(lista_computador, 1);
 
-		if (rodada != NULL) {
-			rodada->cor = sortear_cor();
-			rodada->prox = NULL;
+		p = lista_computador;
+		int c = 1;
+		int cor_jogador;
 
-			if (lista_jogadas == NULL) {
-				lista_jogadas = rodada;
+
+
+		while (p != NULL) {
+
+			int tempoIni = time(NULL);
+			printf("Cor num %d: ", c++);
+			scanf("%d", &cor_jogador);
+			int tempoFim = time(NULL);
+			int seg = tempoFim - tempoIni;
+
+			if (seg >= LIMITE_TEMPO) {
+				printf("TIME IS UP!!! %d ", seg);
+				getchar();
+				getchar();
+				errou = 1;
+				break;
 			} else {
-				p = lista_jogadas;
-				while (p->prox != NULL) {
+
+				if (cor_jogador == p->cor) {
+					pontos = pontos + ACERTO;
 					p = p->prox;
+				} else {
+					printf("\n\nERROOOU...");
+					printf("\nFIM DE JOGO, PONTUACAO: %d PONTOS!", pontos);
+					printf("\nTEMPO TOTAL: %d", seg);
+
+					getchar();
+					getchar();
+
+					errou = 1;
+					break;
 				}
-				p->prox = rodada; // ultimo aponta para o novo registro
+
 			}
+			clear_screen();
 		}
 
-		imprime_jogadas(lista_jogadas, 1);
-		printf("\n aguardando...");
 		getchar();
 
-		t++;
-		if (t >= 5) {
-			break;
-		}
+
 	}
-
-	getchar();
-
-	//scanf("%d", &aux->play.cor);
-
-	//aux->prox = NULL;    // nao aponta
 }
 
 /************************************************
