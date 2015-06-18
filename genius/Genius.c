@@ -34,7 +34,7 @@
 #define VERDE "color 0A"
 #define VERMELHO "color 0C"
 #define BRANCO "color 0F"
-#define ACERTO 10
+#define ACERTO 1
 #define LIMITE_TEMPO 9
 
 typedef struct {          // criando tipo de estrutura
@@ -61,7 +61,9 @@ void jogar(JOGADORES** j);   // inicializa novo jogo com NULL
 void placar(JOGADORES *l);   // informa recordes do jogo
 void info_jogo();   // tutorial do jogo
 void inicia_jogadas(JOGADAS ** pc);
-void imprime_jogadas(JOGADAS* lista_jogadas, int segundos);
+void imprime_jogada(JOGADAS* lista_jogadas, int segundos);
+void compara_jogada(JOGADAS* computador, JOGADAS* jogador);
+void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos);
 
 void cor(char * cor) {
 	system(cor);
@@ -123,7 +125,7 @@ int main(void) {
 /**
  * Imprime as cores das jogadas
  */
-void imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
+void imprime_jogada(JOGADAS* lista_jogadas, int segundos) {
 
 	if (lista_jogadas == NULL) // caso a lista esteja vazia
 		printf("\n sem jogadas!");
@@ -131,7 +133,7 @@ void imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
 		clear_screen();
 		int cont = 1;
 		while (lista_jogadas != NULL) {    // ponteiro auxiliar para a lista
-			printf("%d - [ %d ]", cont++, lista_jogadas->cor);
+			printf("%d-[ %d ]", cont++, lista_jogadas->cor);
 			lista_jogadas = lista_jogadas->prox;  // aponta para o proximo registro da lista
 			fflush(stdout);
 			wait(1);
@@ -141,6 +143,41 @@ void imprime_jogadas(JOGADAS* lista_jogadas, int segundos) {
 	} // fim if( aux == NULL )
 
 	clear_screen();
+}
+
+/*
+ * imprime as jogadas do computador X jogador
+ */
+void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
+
+	int c1 = 1;
+
+	printf("\nJogadas do Computador: \n");
+	while (computador != NULL) {
+		printf("%d-[ %d ] ", c1++, computador->cor);
+		computador = computador->prox;
+	}
+
+	fflush(stdout);
+
+	int c2 = 1;
+	printf("\nJogadas do Jogador: \n");
+	while (jogador != NULL) {
+		printf("%d-[ %d ] ", c2++, jogador->cor);
+		jogador = jogador->prox;
+	}
+	fflush(stdout);
+}
+
+/*
+ * imprime o sumário de final de jogo
+ *  - jogadas do computador X jogador
+ *  - pontuação
+ */
+void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos) {
+	printf("\nFIM DE JOGO !!!\n\n");
+	compara_jogada(computador, computador);
+	printf("\nFIM DE JOGO, PONTUACAO: %d PONTOS!", pontos);
 }
 
 int sortear_cor() {
@@ -180,20 +217,22 @@ void inclui_jogada(JOGADAS ** jogadas, int cor) {
 void jogar(JOGADORES** j) {
 
 	JOGADAS* lista_computador = NULL;
+	JOGADAS* lista_jogador    = NULL;
+
 	JOGADAS* p = NULL;
 
 	int pontos = 0;
 	int errou = 0;
 	while (!errou) {
+		JOGADAS* lista_jogador    = NULL;
 		inclui_jogada(&lista_computador, sortear_cor());
-		imprime_jogadas(lista_computador, 1);
+		imprime_jogada(lista_computador, 1);
 
 		p = lista_computador;
 		int c = 1;
 		int cor_jogador;
 
 		while (p != NULL) {
-
 			int tempoIni = time(NULL);
 			printf("Cor num %d: ", c++);
 			scanf("%d", &cor_jogador);
@@ -203,27 +242,23 @@ void jogar(JOGADORES** j) {
 			// verifica se estourou o tempo
 			if (seg >= LIMITE_TEMPO) {
 				printf("TIME IS UP!!! %d ", seg);
-				getchar();
+				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
 				getchar();
 				errou = 1;
 				break;
 			} else {
-				// se nao estourar o tempo verifica a cor.
+				// se nao passar o tempo verifica a cor.
+				inclui_jogada(&lista_jogador, cor_jogador);
 				if (cor_jogador == p->cor) {
-					pontos = pontos + ACERTO;
+					pontos++;
 					p = p->prox;
 				} else {
-					printf("\n\nERROOOU...");
-					printf("\nFIM DE JOGO, PONTUACAO: %d PONTOS!", pontos);
-					printf("\nTEMPO TOTAL: %d", seg);
-
+					// fim de jogo
+					sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
 					getchar();
-					getchar();
-
 					errou = 1;
 					break;
 				}
-
 			}
 			clear_screen();
 		}
