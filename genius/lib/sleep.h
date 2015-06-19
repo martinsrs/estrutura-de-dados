@@ -8,10 +8,6 @@
 #ifndef SLEEP_H
 #define	SLEEP_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -19,10 +15,9 @@ extern "C" {
 
 //sleep
 void wait(int seconds) {
-	#ifdef WINDOWS
-		int win_seconds = seconds * 100;
-	    system("cls");
-	    Sleep(win_seconds);
+	#if defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
+		int win_seconds = seconds * 1000;
+	    sleep(win_seconds);
 	#else
 	    sleep(seconds);
 	#endif
