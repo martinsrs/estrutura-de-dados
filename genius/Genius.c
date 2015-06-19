@@ -74,7 +74,6 @@ void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos);
 void entrada_dados(RECORDES* jogadores, int pontos);
 void inclui_recorde(RECORDES ** recordes, int pontos); //adiciona um recorde
 void mostra_recordes(RECORDES * jogadores); // informa recordes do jogo
-void ordena_selecao(RECORDES ** recordes); //ordena recordes
 
 void cor(char * cor) {
 	system(cor);
