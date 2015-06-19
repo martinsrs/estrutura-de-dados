@@ -61,17 +61,17 @@ typedef struct jogada {
 /***********************************************/
 /* Definicao das Funcoes                       */
 /***********************************************/
-int sortear_cor();
 
-int jogar(RECORDES** j);   // inicializa novo jogo com NULL
-void info_jogo();   // tutorial do jogo
-void inicia_jogadas(JOGADAS ** pc);
+void tutorial();   // tutorial do jogo
+
+int sortear_cor();
+int jogar(RECORDES** j);   // inicia novo jogo
 void imprime_jogada(JOGADAS* lista_jogadas, int segundos);
 void compara_jogada(JOGADAS* computador, JOGADAS* jogador);
 void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos);
 
 //funcoes para controlar os recordes
-void entrada_dados(RECORDES* jogadores, int pontos);
+void entrada_dados(RECORDES* recordes, int pontos);
 void inclui_recorde(RECORDES ** recordes, int pontos); //adiciona um recorde
 void mostra_recordes(RECORDES * jogadores); // informa recordes do jogo
 
@@ -79,13 +79,9 @@ void cor(char * cor) {
 	system(cor);
 }
 
-void inicia_jogadas(JOGADAS ** pc) {
-	*pc = NULL;
-}
-
-/***********************************************/
-/* Programa Principal                          */
-/***********************************************/
+/*
+ * Programa Principal
+ */
 int main(void) {
 	int op;       // opcao do menu
 	int pontos = 0;
@@ -114,7 +110,7 @@ int main(void) {
 			break;
 
 		case 3:  // tutorial do jogo
-			info_jogo();
+			tutorial();
 			break;
 
 		case 0: // fecha o programa
@@ -133,6 +129,71 @@ int main(void) {
 	} // fim do while( 1 )
 
 } // fim do programa principal
+
+/*
+ * Sorteia uma cor aleatoria para a jogada do computador
+ */
+int sortear_cor() {
+	int cor_sorteada = 0; // armazena o codigo da cor randomica
+	srand(time(NULL)); // inicia o random e nao faz sempre buscar a mesma sequencia
+	cor_sorteada = rand() % MAXNUMCORES + 1; // sorteia uma cor, evita o 0
+
+	return cor_sorteada;
+}
+
+/************************************************
+ * jogar                                        *
+ * objetivo: rotina para inicializar o jogo     *
+ * entrada : RECORDES                          *
+ * saida   : INT - total de pontos              *
+ ************************************************/
+int jogar(RECORDES** recordes) {
+
+	JOGADAS* lista_computador = NULL;
+	JOGADAS* p = NULL;
+
+	int pontos = 0;
+	while (1) {
+		JOGADAS* lista_jogador    = NULL;
+		inclui_jogada(&lista_computador, sortear_cor());
+		imprime_jogada(lista_computador, 1);
+
+		p = lista_computador;
+		int c = 1;
+		int cor_jogador;
+
+		while (p != NULL) {
+			int tempoIni = time(NULL);
+			printf("Cor num %d: ", c++);
+			scanf("%d", &cor_jogador);
+			int tempoFim = time(NULL);
+			int seg = tempoFim - tempoIni;
+
+			// verifica se estourou o tempo
+			if (seg >= LIMITE_TEMPO) {
+				printf("TIME IS UP!!! %d ", seg);
+				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
+				getchar();
+
+				return pontos;
+			} else {
+				// se nao passar o tempo verifica a cor.
+				inclui_jogada(&lista_jogador, cor_jogador);
+				if (cor_jogador == p->cor) {
+					pontos++;
+					p = p->prox;
+				} else {
+					// fim de jogo
+					sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
+					getchar();
+					return pontos;
+				}
+			}
+			clear_screen();
+		}
+		getchar();
+	}
+}
 
 /**
  * Imprime as cores das jogadas
@@ -187,18 +248,13 @@ void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos) {
     printf("\n----------------------------------------------------");
 	printf("\nFIM DE JOGO !!!\n\n");
+
 	compara_jogada(computador, jogador);
+
 	printf("\n\nPONTUACAO: %d PONTOS!", pontos);
 	printf("\n----------------------------------------------------");
 }
 
-int sortear_cor() {
-	int cor_sorteada = 0; // armazena o codigo da cor randomica
-	srand(time(NULL)); // inicia o random e nao faz sempre buscar a mesma sequencia
-	cor_sorteada = rand() % MAXNUMCORES + 1; // sorteia uma cor, evita o 0
-
-	return cor_sorteada;
-}
 
 void inclui_jogada(JOGADAS ** jogadas, int cor) {
 	JOGADAS* p = NULL;
@@ -220,66 +276,13 @@ void inclui_jogada(JOGADAS ** jogadas, int cor) {
 	}
 }
 
-/************************************************
- * jogar                                        *
- * objetivo: rotina para inicializar o jogo     *
- * entrada : RECORDES                          *
- * saida   : INT - total de pontos              *
- ************************************************/
-int jogar(RECORDES** recordes) {
 
-	JOGADAS* lista_computador = NULL;
-	JOGADAS* p = NULL;
 
-	int pontos = 0;
-	while (1) {
-		JOGADAS* lista_jogador    = NULL;
-		inclui_jogada(&lista_computador, sortear_cor());
-		imprime_jogada(lista_computador, 1);
-
-		p = lista_computador;
-		int c = 1;
-		int cor_jogador;
-
-		while (p != NULL) {
-			int tempoIni = time(NULL);
-			printf("Cor num %d: ", c++);
-			scanf("%d", &cor_jogador);
-			int tempoFim = time(NULL);
-			int seg = tempoFim - tempoIni;
-
-			// verifica se estourou o tempo
-			if (seg >= LIMITE_TEMPO) {
-				printf("TIME IS UP!!! %d ", seg);
-				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
-				getchar();
-
-				return pontos;
-			} else {
-				// se nao passar o tempo verifica a cor.
-				inclui_jogada(&lista_jogador, cor_jogador);
-				if (cor_jogador == p->cor) {
-					pontos++;
-					p = p->prox;
-				} else {
-					// fim de jogo					
-					sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
-					getchar();
-					return pontos;
-				}
-			}
-			clear_screen();
-		}
-		getchar();
-	}
-}
-
-/************************************************
- * tutorial                                     *
- * objetivo: rotina para inicializar novo jogo  *
- * saida   : NULL (inicializa RECORDES)        *
- ************************************************/
-void info_jogo() {
+/*
+ * tutorial
+ * objetivo: rotina para inicializar novo jogo
+ */
+void tutorial() {
 	printf("\n Bem vindo ao jogo Genius! ");
 	printf("\n\n TUTORIAL: ");
 	printf(
@@ -297,15 +300,22 @@ void info_jogo() {
 	getchar();
 }
 
-void entrada_dados(RECORDES* jogadores, int pontos) {
+/*
+ * Entrada de dados na lista de recordes
+ * entrada: Recordes, pontos
+ */
+void entrada_dados(RECORDES* recordes, int pontos) {
 	fflush(stdin);
 	printf("\nDigite seu nome: ");
-	scanf(STR, jogadores->info.nome);
-	jogadores->info.pontos = pontos;
-	jogadores->prox = NULL;
+	scanf(STR, recordes->info.nome);
+	recordes->info.pontos = pontos;
+	recordes->prox = NULL;
 }
 
-//limita em 5 recordes top / 10 pontos
+/*
+ * Inclui novo recorde no TOP 5
+ * entrada: recordes, pontos
+ */
 void inclui_recorde(RECORDES ** recordes, int pontos) {
 	RECORDES* no = (RECORDES*) malloc(sizeof(RECORDES));
 	RECORDES* pos = *recordes;
@@ -343,18 +353,17 @@ void inclui_recorde(RECORDES ** recordes, int pontos) {
 
 }
 
-/************************************************
- * mostra os recordes                           *
- * objetivo: rotina para inicializar novo jogo  *
- * entrada : RECORDES                           *
- * saida   : NULL (inicializa RECORDES)         *
- ************************************************/
+/*
+ * Mostra a lista TOP 5 Recordes
+ * objetivo: rotina para inicializar novo jogo
+ * entrada : RECORDES
+ */
 void mostra_recordes(RECORDES * recordes) {
 
 	clear_screen();
 
 	int rank = 1;
-	printf("RECORDES: \n");
+	printf("TOP %d RECORDES: \n", MAX_RECORDES);
 
 	printf("\n------------------------------------------------------------\n");
 	printf("| %-10s |", "POSICAO");
