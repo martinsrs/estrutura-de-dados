@@ -514,7 +514,7 @@ void tutorial() {
 
 	printf("\nO Jogo consiste em o jogador repetir o maximo de vezes a mesma sequencia de cores apresentada na tela");
 	printf("\nO jogador tera ate 9 segundos para informar cada cor da sequencia");
-	printf("\nCada cor acertada na sequencia aculula 1 ponto");
+	printf("\nCada cor acertada na sequencia acumula 1 ponto");
 	printf("\nApós terminar a jogada o jogador deve informar o seu Nome para adicionar ao ranking");
 	printf("\n\nAs cores serao definidas através dos numeros:\n");
 
