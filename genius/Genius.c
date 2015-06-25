@@ -4,7 +4,7 @@
 /* programadores: Marcio Bandarra Soares       */
 /*                Eduardo Martins              */
 /* criado em: 01/06/2015                       */
-/* data da ultima alteracao: 08/06/2015        */
+/* data da ultima alteracao: 25/06/2015        */
 /***********************************************/
 
 #include <stdio.h>
