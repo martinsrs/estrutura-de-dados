@@ -35,8 +35,6 @@
 #define VERMELHO "color 0C"
 #define BRANCO "color 0F"
 
-#define COLOR_YELLOW "\e[1;33m"
-
 #define ACERTO 1
 #define MAX_RECORDES 5
 #define LIMITE_TEMPO 9
@@ -70,6 +68,8 @@ char * colorName[5];
 int sortear_cor();
 void salva_jogada(JOGADAS ** jogadas, int cor); // salva jogadas feitas pelo computador
 int jogar(RECORDES** j); // inicia novo jogo
+
+void muda_cor(int color);
 void imprime_colorido(int id, int color); // imprime as jogadas com cores
 void imprime_jogada(JOGADAS* lista_jogadas, int segundos); // imprime a lista de jogadas ja sorteadas
 
@@ -253,6 +253,29 @@ int jogar(RECORDES** recordes) {
 }
 
 /*
+ * Muda para a cor correspondente
+ */
+void muda_cor(int color) {
+	switch (color) {
+	case 1:
+		printf("\e[1;33m");
+		break;
+	case 2:
+		printf("\e[1;34m");
+		break;
+	case 3:
+		printf("\e[1;32m");
+		break;
+	case 4:
+		printf("\e[1;31m");
+		break;
+	default:
+		printf("\e[0;37m");
+		break;
+	}
+}
+
+/*
  * faz a impressão colorida dos numeros
  */
 void imprime_colorido(int id, int color) {
@@ -265,40 +288,32 @@ void imprime_colorido(int id, int color) {
 	 */
 
 	printf("\n %d : ", id);
+	muda_cor(color);
 	switch (color) {
 		case 1:
-
-			printf("\e[1;33m");
 			printf("\n ┌───┐  ┌─┐┌┬┐┌─┐┬─┐┌─┐┬  ┌─┐  ");
 			printf("\n │ 1 │  ├─┤│││├─┤├┬┘├┤ │  │ │  ");
 			printf("\n └───┘  ┴ ┴┴ ┴┴ ┴┴└─└─┘┴─┘└─┘  ");
-
-			printf("\e[0;37m");
 			break;
 		case 2:
-			printf("\e[1;34m");
 			printf("\n ┌───┐  ┌─┐┌─┐┬ ┬┬   ");
 			printf("\n │ 2 │  ├─┤┌─┘│ ││   ");
 			printf("\n └───┘  ┴ ┴└─┘└─┘┴─┘ ");
-			printf("\e[0;37m");
 			break;
 		case 3:
-			printf("\e[1;32m");
 			printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐ ");
 			printf("\n │ 3 │  └┐┌┘├┤ ├┬┘ ││├┤  ");
 			printf("\n └───┘   └┘ └─┘┴└──┴┘└─┘ ");
-			printf("\e[0;37m");
 			break;
 		case 4:
-			printf("\e[1;31m");
 			printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐┬  ┬ ┬┌─┐  ");
 			printf("\n │ 4 │  └┐┌┘├┤ ├┬┘│││├┤ │  ├─┤│ │  ");
 			printf("\n └───┘   └┘ └─┘┴└─┴ ┴└─┘┴─┘┴ ┴└─┘  ");
-			printf("\e[0;37m");
 			break;
 		default:
 			break;
 	}
+	muda_cor(0);
 }
 
 /**
@@ -333,7 +348,11 @@ void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 
 	printf("\nJogadas do Computador: \n");
 	while (computador != NULL) {
-		printf("%d-[ %s ] ", c1++, colorName[computador->cor]);
+		printf("%d-[ ", c1++);
+		muda_cor(computador->cor);
+		printf("%s", colorName[computador->cor]);
+		muda_cor(0);
+		printf(" ] ");
 		computador = computador->prox;
 	}
 
@@ -342,7 +361,13 @@ void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 	while (jogador != NULL) {
 
 		if ((jogador->cor >=1) && (jogador->cor <= 4)) {
-			printf("%d-[ %s ] ", c2++, colorName[jogador->cor]);
+
+			printf("%d-[ ", c1++);
+			muda_cor(jogador->cor);
+			printf("%s", colorName[jogador->cor]);
+			muda_cor(0);
+			printf(" ] ");
+
 		} else {
 			printf("%d-[ %s ] ", c2++, "invalida");
 		}
