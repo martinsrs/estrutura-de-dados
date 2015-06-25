@@ -35,6 +35,8 @@
 #define VERMELHO "color 0C"
 #define BRANCO "color 0F"
 
+#define COLOR_YELLOW "\e[1;33m"
+
 #define ACERTO 1
 #define MAX_RECORDES 5
 #define LIMITE_TEMPO 9
@@ -57,23 +59,30 @@ typedef struct jogada {
 	struct jogada* prox; // ponteiro para o proximo registro
 } JOGADAS;
 
+char * colorName[5];
 
 /***********************************************/
 /* Definicao das Funcoes                       */
 /***********************************************/
 
-void tutorial();   // tutorial do jogo
 
+// funcoes de jogo
 int sortear_cor();
-int jogar(RECORDES** j);   // inicia novo jogo
-void imprime_jogada(JOGADAS* lista_jogadas, int segundos);
-void compara_jogada(JOGADAS* computador, JOGADAS* jogador);
-void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos);
+void salva_jogada(JOGADAS ** jogadas, int cor); // salva jogadas feitas pelo computador
+int jogar(RECORDES** j); // inicia novo jogo
+void imprime_colorido(int id, int color); // imprime as jogadas com cores
+void imprime_jogada(JOGADAS* lista_jogadas, int segundos); // imprime a lista de jogadas ja sorteadas
+
+// funcoes de game over
+void compara_jogada(JOGADAS* computador, JOGADAS* jogador); // compara as jogadas ao fim do jogo
+void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos, int tempo);
 
 //funcoes para controlar os recordes
 void entrada_dados(RECORDES* recordes, int pontos);
 void inclui_recorde(RECORDES ** recordes, int pontos); //adiciona um recorde
 void mostra_recordes(RECORDES * jogadores); // informa recordes do jogo
+
+void tutorial();   // tutorial do jogo
 
 void cor(char * cor) {
 	system(cor);
@@ -86,16 +95,36 @@ int main(void) {
 	int op;       // opcao do menu
 	int pontos = 0;
 
-	RECORDES* recordes; // lista de recordes
+	colorName[1] = "Amarelo";
+	colorName[2] = "Azul";
+	colorName[3] = "Verde";
+	colorName[4] = "Vermelho";
+
+	RECORDES* recordes = NULL; // lista de recordes
+
 	while (1) {
 		clear_screen();
-		printf("\n /----------------------------------------------------/");
-		printf("\n Jogo Genius - Menu de opcoes                          ");
-		printf("\n [1]   Jogar                                           ");
-		printf("\n [2]   Recordes                                        ");
-		printf("\n [3]   Tutorial                                        ");
-		printf("\n [0]   Sair do jogo                                    ");
-		printf("\n /----------------------------------------------------/");
+
+		printf("\n      ___           ___           ___                        ___           ___      ");
+		printf("\n     /  /\\\         /  /\\\         /  /\\\           ___        /  /\\\         /  /\\\     ");
+		printf("\n    /  /::\\\       /  /::\\\       /  /::|         /__/\\\      /  /:/        /  /::\\\    ");
+		printf("\n   /  /:/\\\:\\\     /  /:/\\\:\\\     /  /:|:|         \\\__\\\:\\\    /  /:/        /__/:/\\\:\\\   ");
+		printf("\n  /  /:/  \\\:\\\   /  /::\\\ \\\:\\\   /  /:/|:|__       /  /::\\\  /  /:/        _\\\_ \\\:\\\ \\\:\\\  ");
+		printf("\n /__/:/_\\\_ \\\:\\\ /__/:/\\\:\\\ \\\:\\\ /__/:/ |:| /\\\   __/  /:/\\\/ /__/:/     /\\\ /__/\\\ \\\:\\\ \\\:\\\ ");
+		printf("\n \\\  \\\:\\\__/\\\_\\\/ \\\  \\\:\\\ \\\:\\\_\\\/ \\\__\\\/  |:|/:/  /__/\\\/:/~~  \\\  \\\:\\\    /:/ \\\  \\\:\\\ \\\:\\\_\\\/ ");
+		printf("\n  \\\  \\\:\\\ \\\:\\\    \\\  \\\:\\\ \\\:\\\       |  |:/:/   \\\  \\\::/      \\\  \\\:\\\  /:/   \\\  \\\:\\\_\\\:\\\   ");
+		printf("\n   \\\  \\\:\\\/:/     \\\  \\\:\\\_\\\/       |__|::/     \\\  \\\:\\\       \\\  \\\:\\\/:/     \\\  \\\:\\\/:/   ");
+		printf("\n    \\\  \\\::/       \\\  \\\:\\\         /__/:/       \\\__\\\/        \\\  \\\::/       \\\  \\\::/    ");
+		printf("\n     \\\__\\\/         \\\__\\\/         \\\__\\\/                      \\\__\\\/         \\\__\\\/     ");
+
+
+		printf("\n\n--------------------------------------------\n");
+		printf("| %-40s |\n", "[1]   Jogar");
+		printf("| %-40s |\n", "[2]   Recordes");
+		printf("| %-40s |\n", "[3]   Tutorial");
+		printf("| %-40s |\n", "[0]   Sair do jogo");
+		printf("--------------------------------------------\n");
+
 		printf("\n Opcao: ");
 		scanf("%d", &op); // tecla de opcao do menu
 
@@ -113,22 +142,21 @@ int main(void) {
 			tutorial();
 			break;
 
-		case 0: // fecha o programa
+		case 0: // sair
 			exit(1);
 			break;
 
 		default:
-			printf("\n Digite uma opcao!");
+			printf("\n Digite uma opcao:");
 			break;
-		} // switch( op )
+		}
 
 		fflush( stdin); // limpa buffer do teclado, funciona junto com entrada de dados
 		getchar();       // parada da tela
 
 		printf("\n");
-	} // fim do while( 1 )
-
-} // fim do programa principal
+	}
+}
 
 /*
  * Sorteia uma cor aleatoria para a jogada do computador
@@ -141,122 +169,10 @@ int sortear_cor() {
 	return cor_sorteada;
 }
 
-/************************************************
- * jogar                                        *
- * objetivo: rotina para inicializar o jogo     *
- * entrada : RECORDES                          *
- * saida   : INT - total de pontos              *
- ************************************************/
-int jogar(RECORDES** recordes) {
-
-	JOGADAS* lista_computador = NULL;
-	JOGADAS* p = NULL;
-
-	int pontos = 0;
-	while (1) {
-		JOGADAS* lista_jogador    = NULL;
-		inclui_jogada(&lista_computador, sortear_cor());
-		imprime_jogada(lista_computador, 1);
-
-		p = lista_computador;
-		int c = 1;
-		int cor_jogador;
-
-		while (p != NULL) {
-			int tempoIni = time(NULL);
-			printf("Cor num %d: ", c++);
-			scanf("%d", &cor_jogador);
-			int tempoFim = time(NULL);
-			int seg = tempoFim - tempoIni;
-
-			// verifica se estourou o tempo
-			if (seg >= LIMITE_TEMPO) {
-				printf("TIME IS UP!!! %d ", seg);
-				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
-				getchar();
-
-				return pontos;
-			} else {
-				// se nao passar o tempo verifica a cor.
-				inclui_jogada(&lista_jogador, cor_jogador);
-				if (cor_jogador == p->cor) {
-					pontos++;
-					p = p->prox;
-				} else {
-					// fim de jogo
-					sumario_fim_de_jogo(lista_computador, lista_jogador, pontos);
-					getchar();
-					return pontos;
-				}
-			}
-			clear_screen();
-		}
-		getchar();
-	}
-}
-
-/**
- * Imprime as cores das jogadas
- */
-void imprime_jogada(JOGADAS* lista_jogadas, int segundos) {
-
-	if (lista_jogadas == NULL) // caso a lista esteja vazia
-		printf("\n sem jogadas!");
-	else {
-		clear_screen();
-		int cont = 1;
-		while (lista_jogadas != NULL) {    // ponteiro auxiliar para a lista
-			printf("%d-[ %d ]", cont++, lista_jogadas->cor);
-			lista_jogadas = lista_jogadas->prox;  // aponta para o proximo registro da lista
-			fflush(stdout);
-			wait(1);
-			clear_screen();
-			fflush(stdout);
-		} // fim while( aux != NULL )
-	} // fim if( aux == NULL )
-
-	clear_screen();
-}
-
 /*
- * imprime as jogadas do computador X jogador
+ * Salva as jogadas feitas pelo computador na lista para exibir
  */
-void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
-
-	int c1 = 1;
-
-	printf("\nJogadas do Computador: \n");
-	while (computador != NULL) {
-		printf("%d-[ %d ] ", c1++, computador->cor);
-		computador = computador->prox;
-	}
-
-	int c2 = 1;
-	printf("\n\nJogadas do Jogador: \n");
-	while (jogador != NULL) {
-		printf("%d-[ %d ] ", c2++, jogador->cor);
-		jogador = jogador->prox;
-	}
-	fflush(stdout);
-}
-
-/*
- * imprime o sumario de final de jogo
- *  - jogadas do computador X jogador
- *  - pontuação
- */
-void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos) {
-    printf("\n----------------------------------------------------");
-	printf("\nFIM DE JOGO !!!\n\n");
-
-	compara_jogada(computador, jogador);
-
-	printf("\n\nPONTUACAO: %d PONTOS!", pontos);
-	printf("\n----------------------------------------------------");
-}
-
-
-void inclui_jogada(JOGADAS ** jogadas, int cor) {
+void salva_jogada(JOGADAS ** jogadas, int cor) {
 	JOGADAS* p = NULL;
 	JOGADAS* rodada = (JOGADAS *) malloc(sizeof(JOGADAS)); // aloca novo espaco em memoria para rodadas
 
@@ -276,28 +192,185 @@ void inclui_jogada(JOGADAS ** jogadas, int cor) {
 	}
 }
 
+/************************************************
+ * jogar                                        *
+ * objetivo: rotina para inicializar o jogo     *
+ * entrada : RECORDES                          *
+ * saida   : INT - total de pontos              *
+ ************************************************/
+int jogar(RECORDES** recordes) {
 
+	JOGADAS* lista_computador = NULL;
+	JOGADAS* p = NULL;
+
+	int pontos = 0;
+	while (1) {
+		JOGADAS* lista_jogador    = NULL;
+		salva_jogada(&lista_computador, sortear_cor());
+		imprime_jogada(lista_computador, 1);
+
+		p = lista_computador;
+		int c = 1;
+		int cor_jogador;
+
+		while (p != NULL) {
+			int tempoIni = time(NULL);
+
+			printf("\nUtilize os numeros correspondentes para jogar");
+			printf("\n┌───┐   ┌─┐┌┬┐┌─┐┬─┐┌─┐┬  ┌─┐  ┌───┐   ┌─┐┌─┐┬ ┬┬    ┌───┐   ┬  ┬┌─┐┬─┐┌┬┐┌─┐  ┌───┐   ┬  ┬┌─┐┬─┐┌┬┐┌─┐┬  ┬ ┬┌─┐");
+			printf("\n│ 1 │───├─┤│││├─┤├┬┘├┤ │  │ │  │ 2 │───├─┤┌─┘│ ││    │ 3 │───└┐┌┘├┤ ├┬┘ ││├┤   │ 4 │───└┐┌┘├┤ ├┬┘│││├┤ │  ├─┤│ │");
+			printf("\n└───┘   ┴ ┴┴ ┴┴ ┴┴└─└─┘┴─┘└─┘  └───┘   ┴ ┴└─┘└─┘┴─┘  └───┘    └┘ └─┘┴└──┴┘└─┘  └───┘    └┘ └─┘┴└─┴ ┴└─┘┴─┘┴ ┴└─┘");
+			printf("\n");
+
+			printf("\nCor num %d: ", c++);
+			scanf("%d", &cor_jogador);
+			int tempoFim = time(NULL);
+			int seg = tempoFim - tempoIni;
+
+			// verifica se estourou o tempo
+			if (seg >= LIMITE_TEMPO) {
+				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos, seg);
+				getchar();
+				return pontos;
+			} else {
+				// se nao passar o tempo verifica a cor.
+				salva_jogada(&lista_jogador, cor_jogador);
+				if (cor_jogador == p->cor) {
+					pontos++;
+					p = p->prox;
+				} else {
+					// fim de jogo
+					sumario_fim_de_jogo(lista_computador, lista_jogador, pontos, seg);
+					getchar();
+					return pontos;
+				}
+			}
+			clear_screen();
+		}
+		getchar();
+	}
+}
 
 /*
- * tutorial
- * objetivo: rotina para inicializar novo jogo
+ * faz a impressão colorida dos numeros
  */
-void tutorial() {
-	printf("\n Bem vindo ao jogo Genius! ");
-	printf("\n\n TUTORIAL: ");
-	printf(
-			"\n\n O jogo consiste em o jogador acertar o mximo de cores que sao apresentadas ");
-	printf("\n\n na tela. ");
-	printf("\n\n O jogador tem 9 segundos para cada jogada. ");
-	printf("\n\n Cada cor acertada acumula pontos para um ranking mostrado ao final do jogo. ");
-	printf("\n\n As cores sao definidas por nome / numero como: ");
-	printf("\n\n Tecla [1] Amarelo ");
-	printf("\n\n Tecla [2] Azul ");
-	printf("\n\n Tecla [3] Verde ");
-	printf("\n\n Tecla [4] Vermelho ");
-	printf("\n\n Divirta-se e boa sorte! ");
+void imprime_colorido(int id, int color) {
+	/*
+	 * COLOR_GRAY  = \e[0;37m
+	 * 1 COLOR_YELLOW =\e[1;33m
+	 * 2 COLOR_BLUE   =\e[0;34m
+	 * 3 COLOR_GREEN  ='\e[0;32m
+	 * 4 COLOR_RED    =\e[0;31m
+	 */
 
-	getchar();
+	printf("\n %d : ", id);
+	switch (color) {
+		case 1:
+
+			printf("\e[1;33m");
+			printf("\n ┌───┐  ┌─┐┌┬┐┌─┐┬─┐┌─┐┬  ┌─┐  ");
+			printf("\n │ 1 │  ├─┤│││├─┤├┬┘├┤ │  │ │  ");
+			printf("\n └───┘  ┴ ┴┴ ┴┴ ┴┴└─└─┘┴─┘└─┘  ");
+
+			printf("\e[0;37m");
+			break;
+		case 2:
+			printf("\e[1;34m");
+			printf("\n ┌───┐  ┌─┐┌─┐┬ ┬┬   ");
+			printf("\n │ 2 │  ├─┤┌─┘│ ││   ");
+			printf("\n └───┘  ┴ ┴└─┘└─┘┴─┘ ");
+			printf("\e[0;37m");
+			break;
+		case 3:
+			printf("\e[1;32m");
+			printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐ ");
+			printf("\n │ 3 │  └┐┌┘├┤ ├┬┘ ││├┤  ");
+			printf("\n └───┘   └┘ └─┘┴└──┴┘└─┘ ");
+			printf("\e[0;37m");
+			break;
+		case 4:
+			printf("\e[1;31m");
+			printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐┬  ┬ ┬┌─┐  ");
+			printf("\n │ 4 │  └┐┌┘├┤ ├┬┘│││├┤ │  ├─┤│ │  ");
+			printf("\n └───┘   └┘ └─┘┴└─┴ ┴└─┘┴─┘┴ ┴└─┘  ");
+			printf("\e[0;37m");
+			break;
+		default:
+			break;
+	}
+}
+
+/**
+ * Imprime as cores das jogadas
+ */
+void imprime_jogada(JOGADAS* lista_jogadas, int segundos) {
+
+	if (lista_jogadas != NULL) { // verificar se existem jogadas a serem listadas
+		clear_screen();
+		int cont = 1;
+		while (lista_jogadas != NULL) {    // ponteiro auxiliar para a lista
+
+			imprime_colorido(cont++, lista_jogadas->cor);
+
+			lista_jogadas = lista_jogadas->prox;  // aponta para o proximo registro da lista
+			fflush(stdout);
+			wait(1);
+			clear_screen();
+			fflush(stdout);
+		}
+	}
+
+	clear_screen();
+}
+
+/*
+ * imprime as jogadas do computador X jogador
+ */
+void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
+
+	int c1 = 1;
+
+	printf("\nJogadas do Computador: \n");
+	while (computador != NULL) {
+		printf("%d-[ %s ] ", c1++, colorName[computador->cor]);
+		computador = computador->prox;
+	}
+
+	int c2 = 1;
+	printf("\n\nJogadas do Jogador: \n");
+	while (jogador != NULL) {
+
+		if ((jogador->cor >=1) && (jogador->cor <= 4)) {
+			printf("%d-[ %s ] ", c2++, colorName[jogador->cor]);
+		} else {
+			printf("%d-[ %s ] ", c2++, "invalida");
+		}
+
+		jogador = jogador->prox;
+	}
+	fflush(stdout);
+}
+
+/*
+ * imprime o sumario de final de jogo
+ *  - jogadas do computador X jogador
+ *  - pontuação
+ */
+void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos, int tempo) {
+	clear_screen();
+	printf("\n┌─┐┌─┐┌┬┐┌─┐  ┌─┐┬  ┬┌─┐┬─┐┬");
+	printf("\n│ ┬├─┤│││├┤   │ │└┐┌┘├┤ ├┬┘│");
+	printf("\n└─┘┴ ┴┴ ┴└─┘  └─┘ └┘ └─┘┴└─o");
+    printf("\n-----------------------------");
+
+    if (tempo >= LIMITE_TEMPO) {
+    	printf("\n\n*** TEMPO EXCEDIDO!! %d s ***\n", tempo);
+    }
+
+    compara_jogada(computador, jogador);
+
+	printf("\n\nPONTUACAO: %d PONTOS!", pontos);
+	printf("\n-----------------------------");
 }
 
 /*
@@ -306,6 +379,7 @@ void tutorial() {
  */
 void entrada_dados(RECORDES* recordes, int pontos) {
 	fflush(stdin);
+	printf("\n\nColoque seu nome no mural dos recordes! ");
 	printf("\nDigite seu nome: ");
 	scanf(STR, recordes->info.nome);
 	recordes->info.pontos = pontos;
@@ -314,15 +388,14 @@ void entrada_dados(RECORDES* recordes, int pontos) {
 
 /*
  * Inclui novo recorde no TOP 5
+ * inclui ordenado - modo decrescente
  * entrada: recordes, pontos
  */
 void inclui_recorde(RECORDES ** recordes, int pontos) {
+
 	RECORDES* no = (RECORDES*) malloc(sizeof(RECORDES));
 	RECORDES* pos = *recordes;
 	RECORDES* ant;
-
-
-	//ordena_selecao(recordes); // ordenar a lista antes de executar o metodo
 
 	if (no != NULL) {
 		entrada_dados(no, pontos);
@@ -340,7 +413,7 @@ void inclui_recorde(RECORDES ** recordes, int pontos) {
 		no->prox = pos;
 	}
 
-	// limita em apenas 5 posições: MAX_RECORDES
+	// limita em apenas 5 posições: MAX_RECORDES, excluindo as posições invalidas
 	int count = 1;
 	pos = *recordes;
 	while ((count <= MAX_RECORDES) && (pos != NULL)) {
@@ -363,7 +436,12 @@ void mostra_recordes(RECORDES * recordes) {
 	clear_screen();
 
 	int rank = 1;
-	printf("TOP %d RECORDES: \n", MAX_RECORDES);
+
+	printf("\n┬─┐┌─┐┌─┐┌─┐┬─┐┌┬┐┌─┐┌─┐");
+	printf("\n├┬┘├┤ │  │ │├┬┘ ││├┤ └─┐");
+	printf("\n┴└─└─┘└─┘└─┘┴└──┴┘└─┘└─┘");
+
+	printf("\nTOP %d RECORDES: \n", MAX_RECORDES);
 
 	printf("\n------------------------------------------------------------\n");
 	printf("| %-10s |", "POSICAO");
@@ -382,6 +460,49 @@ void mostra_recordes(RECORDES * recordes) {
 	}
 
 	getchar();
-	getchar();
 
+}
+
+/*
+ * tutorial do jogo
+ * objetivo informar as regras do jogo
+ */
+void tutorial() {
+
+	clear_screen();
+
+	printf("\n\n┌┬┐┬ ┬┌┬┐┌─┐┬─┐┬┌─┐┬  ");
+	printf("\n │ │ │ │ │ │├┬┘│├─┤│  ");
+	printf("\n ┴ └─┘ ┴ └─┘┴└─┴┴ ┴┴─┘\n\n");
+
+	printf("\nO Jogo consiste em o jogador repetir o maximo de vezes a mesma sequencia de cores apresentada na tela");
+	printf("\nO jogador tera ate 9 segundos para informar cada cor da sequencia");
+	printf("\nCada cor acertada na sequencia aculula 1 ponto");
+	printf("\nApós terminar a jogada o jogador deve informar o seu Nome para adicionar ao ranking");
+	printf("\n\nAs cores serao definidas através dos numeros:\n");
+
+	printf("\n");
+	printf("\e[1;33m");
+	printf("\n ┌───┐  ┌─┐┌┬┐┌─┐┬─┐┌─┐┬  ┌─┐      ");
+	printf("\n │ 1 │  ├─┤│││├─┤├┬┘├┤ │  │ │      ");
+	printf("\n └───┘  ┴ ┴┴ ┴┴ ┴┴└─└─┘┴─┘└─┘      ");
+	printf("\e[1;34m");
+	printf("\n ┌───┐  ┌─┐┌─┐┬ ┬┬                 ");
+	printf("\n │ 2 │  ├─┤┌─┘│ ││                 ");
+	printf("\n └───┘  ┴ ┴└─┘└─┘┴─┘               ");
+	printf("\e[1;32m");
+	printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐           ");
+	printf("\n │ 3 │  └┐┌┘├┤ ├┬┘ ││├┤            ");
+	printf("\n └───┘   └┘ └─┘┴└──┴┘└─┘           ");
+	printf("\e[1;31m");
+	printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐┬  ┬ ┬┌─┐  ");
+	printf("\n │ 4 │  └┐┌┘├┤ ├┬┘│││├┤ │  ├─┤│ │  ");
+	printf("\n └───┘   └┘ └─┘┴└─┴ ┴└─┘┴─┘┴ ┴└─┘  ");
+	printf("\e[0;37m");
+	printf("\n\n\n");
+	printf("\n  ┌┐ ┌─┐┌┬┐   ┬┌─┐┌─┐┌─┐┬");
+	printf("\n  ├┴┐│ ││││   ││ ││ ┬│ ││");
+	printf("\n  └─┘└─┘┴ ┴  └┘└─┘└─┘└─┘o");
+
+	getchar();
 }
