@@ -223,13 +223,13 @@ int jogar(RECORDES** recordes) {
 			printf("\e[0;37m");
 			printf("\n");
 
-			printf("\nCor num %d: ", c++);
+			printf("\nCor da jogada %d: ", c++);
 			scanf("%d", &cor_jogador);
 			int tempoFim = time(NULL);
 			int seg = tempoFim - tempoIni;
 
 			// verifica se estourou o tempo
-			if (seg >= LIMITE_TEMPO) {
+			if (seg > LIMITE_TEMPO) {
 				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos, seg);
 				getchar();
 				return pontos;
@@ -389,7 +389,7 @@ void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos, int 
 	printf("\n└─┘┴ ┴┴ ┴└─┘  └─┘ └┘ └─┘┴└─o");
     printf("\n-----------------------------");
 
-    if (tempo >= LIMITE_TEMPO) {
+    if (tempo > LIMITE_TEMPO) {
     	printf("\n\n*** TEMPO EXCEDIDO!! %d s ***\n", tempo);
     }
 
