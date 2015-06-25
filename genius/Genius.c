@@ -42,22 +42,31 @@
 #define STR "%[^\n]%*c"
 #define MAX_STR 50
 
-typedef struct { // criando tipo de estrutura
-	int pontos;  // total de pontos
-	char nome[MAX_STR];
+/*
+ * Estrutura pra armazenar os dados do jogador
+ */
+typedef struct {
+	int pontos;         // total de pontos
+	char nome[MAX_STR]; // nome
 } JOGADOR;
 
+/*
+ * Estrutura para armazenar os recordes
+ */
 typedef struct list {
 	JOGADOR info;   // dados do jogador
 	struct list* prox; // ponteiro para o proximo registro
 } RECORDES;
 
+/*
+ * Estrutura para armazenar as jogadas do computador
+ */
 typedef struct jogada {
 	int cor;   // cor da jogada
 	struct jogada* prox; // ponteiro para o proximo registro
 } JOGADAS;
 
-char * colorName[5];
+char * colorName[5]; // nomes das cores
 
 /***********************************************/
 /* Definicao das Funcoes                       */
@@ -95,6 +104,7 @@ int main(void) {
 	int op;       // opcao do menu
 	int pontos = 0;
 
+	colorName[0] = "Invalida";
 	colorName[1] = "Amarelo";
 	colorName[2] = "Azul";
 	colorName[3] = "Verde";
@@ -104,19 +114,19 @@ int main(void) {
 
 	while (1) {
 		clear_screen();
-
-		printf("\n      ___           ___           ___                        ___           ___      ");
-		printf("\n     /  /\\\         /  /\\\         /  /\\\           ___        /  /\\\         /  /\\\     ");
-		printf("\n    /  /::\\\       /  /::\\\       /  /::|         /__/\\\      /  /:/        /  /::\\\    ");
-		printf("\n   /  /:/\\\:\\\     /  /:/\\\:\\\     /  /:|:|         \\\__\\\:\\\    /  /:/        /__/:/\\\:\\\   ");
-		printf("\n  /  /:/  \\\:\\\   /  /::\\\ \\\:\\\   /  /:/|:|__       /  /::\\\  /  /:/        _\\\_ \\\:\\\ \\\:\\\  ");
-		printf("\n /__/:/_\\\_ \\\:\\\ /__/:/\\\:\\\ \\\:\\\ /__/:/ |:| /\\\   __/  /:/\\\/ /__/:/     /\\\ /__/\\\ \\\:\\\ \\\:\\\ ");
-		printf("\n \\\  \\\:\\\__/\\\_\\\/ \\\  \\\:\\\ \\\:\\\_\\\/ \\\__\\\/  |:|/:/  /__/\\\/:/~~  \\\  \\\:\\\    /:/ \\\  \\\:\\\ \\\:\\\_\\\/ ");
-		printf("\n  \\\  \\\:\\\ \\\:\\\    \\\  \\\:\\\ \\\:\\\       |  |:/:/   \\\  \\\::/      \\\  \\\:\\\  /:/   \\\  \\\:\\\_\\\:\\\   ");
-		printf("\n   \\\  \\\:\\\/:/     \\\  \\\:\\\_\\\/       |__|::/     \\\  \\\:\\\       \\\  \\\:\\\/:/     \\\  \\\:\\\/:/   ");
-		printf("\n    \\\  \\\::/       \\\  \\\:\\\         /__/:/       \\\__\\\/        \\\  \\\::/       \\\  \\\::/    ");
-		printf("\n     \\\__\\\/         \\\__\\\/         \\\__\\\/                      \\\__\\\/         \\\__\\\/     ");
-
+		printf("\e[1;37m");
+		printf("\n\e[1;33m      ___      \e[1;34m     ___      \e[1;32m     ___       \e[1;31m            \e[1;33m     ___      \e[1;34m     ___      ");
+		printf("\n\e[1;33m     /  /\\\     \e[1;34m    /  /\\\     \e[1;32m    /  /\\\      \e[1;31m     ___    \e[1;33m    /  /\\\     \e[1;34m    /  /\\\     ");
+		printf("\n\e[1;33m    /  /::\\\    \e[1;34m   /  /::\\\    \e[1;32m   /  /::|     \e[1;31m    /__/\\\   \e[1;33m   /  /:/     \e[1;34m   /  /::\\\    ");
+		printf("\n\e[1;33m   /  /:/\\\:\\\   \e[1;34m  /  /:/\\\:\\\   \e[1;32m  /  /:|:|     \e[1;31m    \\\__\\\:\\\  \e[1;33m  /  /:/      \e[1;34m  /__/:/\\\:\\\   ");
+		printf("\n\e[1;33m  /  /:/  \\\:\\\  \e[1;34m /  /::\\\ \\\:\\\  \e[1;32m /  /:/|:|__   \e[1;31m    /  /::\\\ \e[1;33m /  /:/       \e[1;34m _\\\_ \\\:\\\ \\\:\\\  ");
+		printf("\n\e[1;33m /__/:/_\\\_ \\\:\\\ \e[1;34m/__/:/\\\:\\\ \\\:\\\ \e[1;32m/__/:/ |:| /\\\  \e[1;31m __/  /:/\\\/ \e[1;33m/__/:/     /\\\ \e[1;34m/__/\\\ \\\:\\\ \\\:\\\ ");
+		printf("\n\e[1;33m \\\  \\\:\\\__/\\\_\\\/ \e[1;34m\\\  \\\:\\\ \\\:\\\_\\\/ \e[1;32m\\\__\\\/  |:|/:/  \e[1;31m/__/\\\/:/~~  \e[1;33m\\\  \\\:\\\    /:/ \e[1;34m\\\  \\\:\\\ \\\:\\\_\\\/ ");
+		printf("\n\e[1;33m  \\\  \\\:\\\ \\\:\\\   \e[1;34m \\\  \\\:\\\ \\\:\\\   \e[1;32m    |  |:/:/   \e[1;31m\\\  \\\::/     \e[1;33m \\\  \\\:\\\  /:/  \e[1;34m \\\  \\\:\\\_\\\:\\\   ");
+		printf("\n\e[1;33m   \\\  \\\:\\\/:/   \e[1;34m  \\\  \\\:\\\_\\\/   \e[1;32m    |__|::/    \e[1;31m \\\  \\\:\\\     \e[1;33m  \\\  \\\:\\\/:/   \e[1;34m  \\\  \\\:\\\/:/   ");
+		printf("\n\e[1;33m    \\\  \\\::/    \e[1;34m   \\\  \\\:\\\     \e[1;32m    /__/:/     \e[1;31m  \\\__\\\/     \e[1;33m   \\\  \\\::/    \e[1;34m   \\\  \\\::/    ");
+		printf("\n\e[1;33m     \\\__\\\/     \e[1;34m    \\\__\\\/     \e[1;32m    \\\__\\\/      \e[1;31m            \e[1;33m    \\\__\\\/     \e[1;34m    \\\__\\\/     ");
+		printf("\e[0;37m");
 
 		printf("\n\n--------------------------------------------\n");
 		printf("| %-40s |\n", "[1]   Jogar");
@@ -279,12 +289,13 @@ void muda_cor(int color) {
  * faz a impressão colorida dos numeros
  */
 void imprime_colorido(int id, int color) {
+
 	/*
 	 * COLOR_GRAY  = \e[0;37m
 	 * 1 COLOR_YELLOW =\e[1;33m
-	 * 2 COLOR_BLUE   =\e[0;34m
-	 * 3 COLOR_GREEN  ='\e[0;32m
-	 * 4 COLOR_RED    =\e[0;31m
+	 * 2 COLOR_BLUE   =\e[1;34m
+	 * 3 COLOR_GREEN  ='\e[1;32m
+	 * 4 COLOR_RED    =\e[1;31m
 	 */
 
 	printf("\n %d : ", id);
@@ -317,7 +328,7 @@ void imprime_colorido(int id, int color) {
 }
 
 /**
- * Imprime as cores das jogadas
+ * Imprime as jogadas do computador
  */
 void imprime_jogada(JOGADAS* lista_jogadas, int segundos) {
 
@@ -340,7 +351,7 @@ void imprime_jogada(JOGADAS* lista_jogadas, int segundos) {
 }
 
 /*
- * imprime as jogadas do computador X jogador
+ * imprime as jogadas do computador X jogador ao final do jogo
  */
 void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 
@@ -362,14 +373,14 @@ void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 
 		if ((jogador->cor >=1) && (jogador->cor <= 4)) {
 
-			printf("%d-[ ", c1++);
+			printf("%d-[ ", c2++);
 			muda_cor(jogador->cor);
 			printf("%s", colorName[jogador->cor]);
 			muda_cor(0);
 			printf(" ] ");
 
 		} else {
-			printf("%d-[ %s ] ", c2++, "invalida");
+			printf("%d-[ %s ] ", c2++, colorName[0]);
 		}
 
 		jogador = jogador->prox;
