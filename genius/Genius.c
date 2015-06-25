@@ -229,7 +229,7 @@ int jogar(RECORDES** recordes) {
 			int seg = tempoFim - tempoIni;
 
 			// verifica se estourou o tempo
-			if (seg >= LIMITE_TEMPO) {
+			if (seg > LIMITE_TEMPO) {
 				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos, seg);
 				getchar();
 				return pontos;
@@ -341,7 +341,7 @@ void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos, int 
 	printf("\nGAME OVER!!!");
     printf("\n-----------------------------");
 
-    if (tempo >= LIMITE_TEMPO) {
+    if (tempo > LIMITE_TEMPO) {
     	printf("\n\n*** TEMPO EXCEDIDO!! %d s ***\n", tempo);
     }
 
