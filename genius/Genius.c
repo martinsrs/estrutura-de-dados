@@ -35,8 +35,6 @@
 #define VERMELHO "color 0C"
 #define BRANCO "color 0F"
 
-#define COLOR_YELLOW "\e[1;33m"
-
 #define ACERTO 1
 #define MAX_RECORDES 5
 #define LIMITE_TEMPO 9
@@ -44,22 +42,31 @@
 #define STR "%[^\n]%*c"
 #define MAX_STR 50
 
-typedef struct { // criando tipo de estrutura
-	int pontos;  // total de pontos
-	char nome[MAX_STR];
+/*
+ * Estrutura pra armazenar os dados do jogador
+ */
+typedef struct {
+	int pontos;         // total de pontos
+	char nome[MAX_STR]; // nome
 } JOGADOR;
 
+/*
+ * Estrutura para armazenar os recordes
+ */
 typedef struct list {
 	JOGADOR info;   // dados do jogador
 	struct list* prox; // ponteiro para o proximo registro
 } RECORDES;
 
+/*
+ * Estrutura para armazenar as jogadas do computador
+ */
 typedef struct jogada {
 	int cor;   // cor da jogada
 	struct jogada* prox; // ponteiro para o proximo registro
 } JOGADAS;
 
-char * colorName[5];
+char * colorName[5]; // nomes das cores
 
 /***********************************************/
 /* Definicao das Funcoes                       */
@@ -70,6 +77,8 @@ char * colorName[5];
 int sortear_cor();
 void salva_jogada(JOGADAS ** jogadas, int cor); // salva jogadas feitas pelo computador
 int jogar(RECORDES** j); // inicia novo jogo
+
+void muda_cor(int color);
 void imprime_colorido(int id, int color); // imprime as jogadas com cores
 void imprime_jogada(JOGADAS* lista_jogadas, int segundos); // imprime a lista de jogadas ja sorteadas
 
@@ -95,6 +104,7 @@ int main(void) {
 	int op;       // opcao do menu
 	int pontos = 0;
 
+	colorName[0] = "Invalida";
 	colorName[1] = "Amarelo";
 	colorName[2] = "Azul";
 	colorName[3] = "Verde";
@@ -104,19 +114,19 @@ int main(void) {
 
 	while (1) {
 		clear_screen();
-
-		printf("\n      ___           ___           ___                        ___           ___      ");
-		printf("\n     /  /\\\         /  /\\\         /  /\\\           ___        /  /\\\         /  /\\\     ");
-		printf("\n    /  /::\\\       /  /::\\\       /  /::|         /__/\\\      /  /:/        /  /::\\\    ");
-		printf("\n   /  /:/\\\:\\\     /  /:/\\\:\\\     /  /:|:|         \\\__\\\:\\\    /  /:/        /__/:/\\\:\\\   ");
-		printf("\n  /  /:/  \\\:\\\   /  /::\\\ \\\:\\\   /  /:/|:|__       /  /::\\\  /  /:/        _\\\_ \\\:\\\ \\\:\\\  ");
-		printf("\n /__/:/_\\\_ \\\:\\\ /__/:/\\\:\\\ \\\:\\\ /__/:/ |:| /\\\   __/  /:/\\\/ /__/:/     /\\\ /__/\\\ \\\:\\\ \\\:\\\ ");
-		printf("\n \\\  \\\:\\\__/\\\_\\\/ \\\  \\\:\\\ \\\:\\\_\\\/ \\\__\\\/  |:|/:/  /__/\\\/:/~~  \\\  \\\:\\\    /:/ \\\  \\\:\\\ \\\:\\\_\\\/ ");
-		printf("\n  \\\  \\\:\\\ \\\:\\\    \\\  \\\:\\\ \\\:\\\       |  |:/:/   \\\  \\\::/      \\\  \\\:\\\  /:/   \\\  \\\:\\\_\\\:\\\   ");
-		printf("\n   \\\  \\\:\\\/:/     \\\  \\\:\\\_\\\/       |__|::/     \\\  \\\:\\\       \\\  \\\:\\\/:/     \\\  \\\:\\\/:/   ");
-		printf("\n    \\\  \\\::/       \\\  \\\:\\\         /__/:/       \\\__\\\/        \\\  \\\::/       \\\  \\\::/    ");
-		printf("\n     \\\__\\\/         \\\__\\\/         \\\__\\\/                      \\\__\\\/         \\\__\\\/     ");
-
+		printf("\e[1;37m");
+		printf("\n\e[1;33m      ___      \e[1;34m     ___      \e[1;32m     ___       \e[1;31m            \e[1;33m     ___      \e[1;34m     ___      ");
+		printf("\n\e[1;33m     /  /\\\     \e[1;34m    /  /\\\     \e[1;32m    /  /\\\      \e[1;31m     ___    \e[1;33m    /  /\\\     \e[1;34m    /  /\\\     ");
+		printf("\n\e[1;33m    /  /::\\\    \e[1;34m   /  /::\\\    \e[1;32m   /  /::|     \e[1;31m    /__/\\\   \e[1;33m   /  /:/     \e[1;34m   /  /::\\\    ");
+		printf("\n\e[1;33m   /  /:/\\\:\\\   \e[1;34m  /  /:/\\\:\\\   \e[1;32m  /  /:|:|     \e[1;31m    \\\__\\\:\\\  \e[1;33m  /  /:/      \e[1;34m  /__/:/\\\:\\\   ");
+		printf("\n\e[1;33m  /  /:/  \\\:\\\  \e[1;34m /  /::\\\ \\\:\\\  \e[1;32m /  /:/|:|__   \e[1;31m    /  /::\\\ \e[1;33m /  /:/       \e[1;34m _\\\_ \\\:\\\ \\\:\\\  ");
+		printf("\n\e[1;33m /__/:/_\\\_ \\\:\\\ \e[1;34m/__/:/\\\:\\\ \\\:\\\ \e[1;32m/__/:/ |:| /\\\  \e[1;31m __/  /:/\\\/ \e[1;33m/__/:/     /\\\ \e[1;34m/__/\\\ \\\:\\\ \\\:\\\ ");
+		printf("\n\e[1;33m \\\  \\\:\\\__/\\\_\\\/ \e[1;34m\\\  \\\:\\\ \\\:\\\_\\\/ \e[1;32m\\\__\\\/  |:|/:/  \e[1;31m/__/\\\/:/~~  \e[1;33m\\\  \\\:\\\    /:/ \e[1;34m\\\  \\\:\\\ \\\:\\\_\\\/ ");
+		printf("\n\e[1;33m  \\\  \\\:\\\ \\\:\\\   \e[1;34m \\\  \\\:\\\ \\\:\\\   \e[1;32m    |  |:/:/   \e[1;31m\\\  \\\::/     \e[1;33m \\\  \\\:\\\  /:/  \e[1;34m \\\  \\\:\\\_\\\:\\\   ");
+		printf("\n\e[1;33m   \\\  \\\:\\\/:/   \e[1;34m  \\\  \\\:\\\_\\\/   \e[1;32m    |__|::/    \e[1;31m \\\  \\\:\\\     \e[1;33m  \\\  \\\:\\\/:/   \e[1;34m  \\\  \\\:\\\/:/   ");
+		printf("\n\e[1;33m    \\\  \\\::/    \e[1;34m   \\\  \\\:\\\     \e[1;32m    /__/:/     \e[1;31m  \\\__\\\/     \e[1;33m   \\\  \\\::/    \e[1;34m   \\\  \\\::/    ");
+		printf("\n\e[1;33m     \\\__\\\/     \e[1;34m    \\\__\\\/     \e[1;32m    \\\__\\\/      \e[1;31m            \e[1;33m    \\\__\\\/     \e[1;34m    \\\__\\\/     ");
+		printf("\e[0;37m");
 
 		printf("\n\n--------------------------------------------\n");
 		printf("| %-40s |\n", "[1]   Jogar");
@@ -217,18 +227,19 @@ int jogar(RECORDES** recordes) {
 			int tempoIni = time(NULL);
 
 			printf("\nUtilize os numeros correspondentes para jogar");
-			printf("\n┌───┐   ┌─┐┌┬┐┌─┐┬─┐┌─┐┬  ┌─┐  ┌───┐   ┌─┐┌─┐┬ ┬┬    ┌───┐   ┬  ┬┌─┐┬─┐┌┬┐┌─┐  ┌───┐   ┬  ┬┌─┐┬─┐┌┬┐┌─┐┬  ┬ ┬┌─┐");
-			printf("\n│ 1 │───├─┤│││├─┤├┬┘├┤ │  │ │  │ 2 │───├─┤┌─┘│ ││    │ 3 │───└┐┌┘├┤ ├┬┘ ││├┤   │ 4 │───└┐┌┘├┤ ├┬┘│││├┤ │  ├─┤│ │");
-			printf("\n└───┘   ┴ ┴┴ ┴┴ ┴┴└─└─┘┴─┘└─┘  └───┘   ┴ ┴└─┘└─┘┴─┘  └───┘    └┘ └─┘┴└──┴┘└─┘  └───┘    └┘ └─┘┴└─┴ ┴└─┘┴─┘┴ ┴└─┘");
+			printf("\n\e[1;33m┌───┐   ┌─┐┌┬┐┌─┐┬─┐┌─┐┬  ┌─┐  \e[1;34m┌───┐   ┌─┐┌─┐┬ ┬┬    \e[1;32m┌───┐   ┬  ┬┌─┐┬─┐┌┬┐┌─┐  \e[1;31m┌───┐   ┬  ┬┌─┐┬─┐┌┬┐┌─┐┬  ┬ ┬┌─┐");
+			printf("\n\e[1;33m│ 1 │───├─┤│││├─┤├┬┘├┤ │  │ │  \e[1;34m│ 2 │───├─┤┌─┘│ ││    \e[1;32m│ 3 │───└┐┌┘├┤ ├┬┘ ││├┤   \e[1;31m│ 4 │───└┐┌┘├┤ ├┬┘│││├┤ │  ├─┤│ │");
+			printf("\n\e[1;33m└───┘   ┴ ┴┴ ┴┴ ┴┴└─└─┘┴─┘└─┘  \e[1;34m└───┘   ┴ ┴└─┘└─┘┴─┘  \e[1;32m└───┘    └┘ └─┘┴└──┴┘└─┘  \e[1;31m└───┘    └┘ └─┘┴└─┴ ┴└─┘┴─┘┴ ┴└─┘");
+			printf("\e[0;37m");
 			printf("\n");
 
-			printf("\nCor num %d: ", c++);
+			printf("\nCor da jogada %d: ", c++);
 			scanf("%d", &cor_jogador);
 			int tempoFim = time(NULL);
 			int seg = tempoFim - tempoIni;
 
 			// verifica se estourou o tempo
-			if (seg >= LIMITE_TEMPO) {
+			if (seg > LIMITE_TEMPO) {
 				sumario_fim_de_jogo(lista_computador, lista_jogador, pontos, seg);
 				getchar();
 				return pontos;
@@ -252,56 +263,72 @@ int jogar(RECORDES** recordes) {
 }
 
 /*
+ * Muda para a cor correspondente
+ */
+void muda_cor(int color) {
+	switch (color) {
+	case 1:
+		printf("\e[1;33m");
+		break;
+	case 2:
+		printf("\e[1;34m");
+		break;
+	case 3:
+		printf("\e[1;32m");
+		break;
+	case 4:
+		printf("\e[1;31m");
+		break;
+	default:
+		printf("\e[0;37m");
+		break;
+	}
+}
+
+/*
  * faz a impressão colorida dos numeros
  */
 void imprime_colorido(int id, int color) {
+
 	/*
 	 * COLOR_GRAY  = \e[0;37m
 	 * 1 COLOR_YELLOW =\e[1;33m
-	 * 2 COLOR_BLUE   =\e[0;34m
-	 * 3 COLOR_GREEN  ='\e[0;32m
-	 * 4 COLOR_RED    =\e[0;31m
+	 * 2 COLOR_BLUE   =\e[1;34m
+	 * 3 COLOR_GREEN  ='\e[1;32m
+	 * 4 COLOR_RED    =\e[1;31m
 	 */
 
 	printf("\n %d : ", id);
+	muda_cor(color);
 	switch (color) {
 		case 1:
-
-			printf("\e[1;33m");
 			printf("\n ┌───┐  ┌─┐┌┬┐┌─┐┬─┐┌─┐┬  ┌─┐  ");
 			printf("\n │ 1 │  ├─┤│││├─┤├┬┘├┤ │  │ │  ");
 			printf("\n └───┘  ┴ ┴┴ ┴┴ ┴┴└─└─┘┴─┘└─┘  ");
-
-			printf("\e[0;37m");
 			break;
 		case 2:
-			printf("\e[1;34m");
 			printf("\n ┌───┐  ┌─┐┌─┐┬ ┬┬   ");
 			printf("\n │ 2 │  ├─┤┌─┘│ ││   ");
 			printf("\n └───┘  ┴ ┴└─┘└─┘┴─┘ ");
-			printf("\e[0;37m");
 			break;
 		case 3:
-			printf("\e[1;32m");
 			printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐ ");
 			printf("\n │ 3 │  └┐┌┘├┤ ├┬┘ ││├┤  ");
 			printf("\n └───┘   └┘ └─┘┴└──┴┘└─┘ ");
-			printf("\e[0;37m");
 			break;
 		case 4:
-			printf("\e[1;31m");
 			printf("\n ┌───┐  ┬  ┬┌─┐┬─┐┌┬┐┌─┐┬  ┬ ┬┌─┐  ");
 			printf("\n │ 4 │  └┐┌┘├┤ ├┬┘│││├┤ │  ├─┤│ │  ");
 			printf("\n └───┘   └┘ └─┘┴└─┴ ┴└─┘┴─┘┴ ┴└─┘  ");
-			printf("\e[0;37m");
 			break;
 		default:
 			break;
 	}
+	muda_cor(0);
 }
 
 /**
- * Imprime as cores das jogadas
+ * Imprime as jogadas do computador
  */
 void imprime_jogada(JOGADAS* lista_jogadas, int segundos) {
 
@@ -324,7 +351,7 @@ void imprime_jogada(JOGADAS* lista_jogadas, int segundos) {
 }
 
 /*
- * imprime as jogadas do computador X jogador
+ * imprime as jogadas do computador X jogador ao final do jogo
  */
 void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 
@@ -332,7 +359,11 @@ void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 
 	printf("\nJogadas do Computador: \n");
 	while (computador != NULL) {
-		printf("%d-[ %s ] ", c1++, colorName[computador->cor]);
+		printf("%d-[ ", c1++);
+		muda_cor(computador->cor);
+		printf("%s", colorName[computador->cor]);
+		muda_cor(0);
+		printf(" ] ");
 		computador = computador->prox;
 	}
 
@@ -341,9 +372,15 @@ void compara_jogada(JOGADAS* computador, JOGADAS* jogador) {
 	while (jogador != NULL) {
 
 		if ((jogador->cor >=1) && (jogador->cor <= 4)) {
-			printf("%d-[ %s ] ", c2++, colorName[jogador->cor]);
+
+			printf("%d-[ ", c2++);
+			muda_cor(jogador->cor);
+			printf("%s", colorName[jogador->cor]);
+			muda_cor(0);
+			printf(" ] ");
+
 		} else {
-			printf("%d-[ %s ] ", c2++, "invalida");
+			printf("%d-[ %s ] ", c2++, colorName[0]);
 		}
 
 		jogador = jogador->prox;
@@ -363,7 +400,7 @@ void sumario_fim_de_jogo(JOGADAS* computador, JOGADAS* jogador, int pontos, int 
 	printf("\n└─┘┴ ┴┴ ┴└─┘  └─┘ └┘ └─┘┴└─o");
     printf("\n-----------------------------");
 
-    if (tempo >= LIMITE_TEMPO) {
+    if (tempo > LIMITE_TEMPO) {
     	printf("\n\n*** TEMPO EXCEDIDO!! %d s ***\n", tempo);
     }
 
@@ -477,7 +514,7 @@ void tutorial() {
 
 	printf("\nO Jogo consiste em o jogador repetir o maximo de vezes a mesma sequencia de cores apresentada na tela");
 	printf("\nO jogador tera ate 9 segundos para informar cada cor da sequencia");
-	printf("\nCada cor acertada na sequencia aculula 1 ponto");
+	printf("\nCada cor acertada na sequencia acumula 1 ponto");
 	printf("\nApós terminar a jogada o jogador deve informar o seu Nome para adicionar ao ranking");
 	printf("\n\nAs cores serao definidas através dos numeros:\n");
 
